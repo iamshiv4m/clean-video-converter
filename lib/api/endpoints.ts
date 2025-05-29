@@ -1,5 +1,5 @@
 export const API_ENDPOINTS = {
-  GENERATE_TRANSCRIPT: "/uxncc-be-go/video-stats/generate-transcript",
+  GENERATE_TRANSCRIPT: "/uxncc-go/video-stats/generate-transcript",
   CHAT_COMPLETION: "/vpservice/public-api/chat/completion",
 } as const;
 

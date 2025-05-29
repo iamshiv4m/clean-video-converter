@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Download, Share2 } from "lucide-react";
+import { Download, Share2, User } from "lucide-react";
 import VideoPlayer from "@/components/video-player";
 import ChatInterface from "@/components/chat-interface";
 import { useGenerateTranscript } from "@/hooks/useGenerateTranscript";
@@ -70,6 +70,29 @@ export default function HomePage() {
 
   useEffect(() => {
     const url = searchParams.get("video");
+    const token = localStorage.getItem("token");
+
+    if (url && token) {
+      generateTranscript(
+        { videoUrl: url },
+        {
+          onSuccess: (data: any) => {
+            localStorage.setItem("videoId", data?.videoId);
+          },
+          onError: (error) => {
+            console.error("Failed to generate transcript:", error);
+          },
+        }
+      );
+    }
+  }, [searchParams, generateTranscript, isLoggedIn]);
+
+  const handleLogin = (userInfo: { username: string; countryCode: string }) => {
+    setIsLoggedIn(true);
+    setUserInfo(userInfo);
+
+    // Generate transcript after successful login if video URL exists
+    const url = searchParams.get("video");
     if (url) {
       generateTranscript(
         { videoUrl: url },
@@ -83,11 +106,6 @@ export default function HomePage() {
         }
       );
     }
-  }, [searchParams, generateTranscript]);
-
-  const handleLogin = (userInfo: { username: string; countryCode: string }) => {
-    setIsLoggedIn(true);
-    setUserInfo(userInfo);
   };
 
   const handleLogout = () => {
@@ -105,6 +123,35 @@ export default function HomePage() {
     if (player && typeof player.seekTo === "function") {
       player.seekTo(seconds, true);
       player.playVideo();
+    }
+  };
+
+  const handleDownload = () => {
+    // Navigate to PW app
+    window.open(
+      "https://play.google.com/store/apps/details?id=com.pw.app",
+      "_blank"
+    );
+  };
+
+  const handleShare = async () => {
+    const videoUrl = searchParams.get("video");
+    if (!videoUrl) return;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Check out this video on PW YoutubeX",
+          text: "I found this interesting video on PW YoutubeX",
+          url: window.location.href,
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
     }
   };
 
@@ -129,20 +176,31 @@ export default function HomePage() {
                 PW YoutubeX
               </h1>
               <div className="flex items-center space-x-4">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={handleShare}>
                   <Share2 className="w-4 h-4 mr-2" />
                   Share
                 </Button>
-                <Button size="sm">
+                <Button size="sm" onClick={handleDownload}>
                   <Download className="w-4 h-4 mr-2" />
                   Download
                 </Button>
-                <AuthDialog
-                  isLoggedIn={isLoggedIn}
-                  userInfo={userInfo}
-                  onLogin={handleLogin}
-                  onLogout={handleLogout}
-                />
+                {isLoggedIn ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                      <User className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">
+                      {userInfo?.username}
+                    </span>
+                  </div>
+                ) : (
+                  <AuthDialog
+                    isLoggedIn={isLoggedIn}
+                    userInfo={userInfo}
+                    onLogin={handleLogin}
+                    onLogout={handleLogout}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -173,7 +231,19 @@ export default function HomePage() {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Video Transcript
                 </h2>
-                {isGenerateTranscriptPending ? (
+                {!isLoggedIn ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <User className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                      Sign in to view transcript
+                    </h4>
+                    <p className="text-gray-600">
+                      Please sign in to access the video transcript
+                    </p>
+                  </div>
+                ) : isGenerateTranscriptPending ? (
                   <div className="animate-pulse space-y-3">
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                     <div className="h-4 bg-gray-200 rounded"></div>
@@ -195,7 +265,7 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* Quiz Section - Now below transcript */}
+              {/* Quiz Section */}
               <QuizTab />
             </div>
 
