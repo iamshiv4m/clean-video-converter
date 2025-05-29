@@ -42,7 +42,7 @@ export default function HomePage() {
     isLoading: isVideoDetailsLoading,
     error: videoDetailsError,
   } = useGetVideoDetails({
-    videoId: "qsqiYM8o7uU",
+    videoId: localStorage.getItem("videoId"),
     enabled: isLoggedIn,
   });
   console.log(data, "data from generateTranscript");
