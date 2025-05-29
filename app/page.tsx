@@ -45,9 +45,6 @@ export default function HomePage() {
     videoId: localStorage.getItem("videoId"),
     enabled: isLoggedIn,
   });
-  console.log(data, "data from generateTranscript");
-
-  console.log(videoDetails.description, "videoDetails");
 
   // Sample timestamps
   const timestamps: Timestamp[] = [
