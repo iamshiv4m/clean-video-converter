@@ -15,6 +15,7 @@ import {
   Percent,
   Copy,
   Check,
+  Navigation,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -216,6 +217,11 @@ export default function QuizInterface() {
     try {
       await navigator.clipboard.writeText(code);
       setCopiedCode(true);
+      window.open(
+        "https://www.pw.live/neet/class-11/batches/arjuna-neet-2-0-2026-449312",
+        "_blank"
+      );
+
       setTimeout(() => setCopiedCode(false), 2000);
     } catch (err) {
       console.error("Failed to copy code:", err);
@@ -331,7 +337,7 @@ export default function QuizInterface() {
                       {copiedCode ? (
                         <Check className="w-4 h-4" />
                       ) : (
-                        <Copy className="w-4 h-4" />
+                        <Navigation className="w-4 h-4" />
                       )}
                     </Button>
                   </div>
