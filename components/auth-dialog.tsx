@@ -38,6 +38,7 @@ interface AuthDialogProps {
   userInfo: { username: string; countryCode: string } | null;
   onLogin: (userInfo: { username: string; countryCode: string }) => void;
   onLogout: () => void;
+  children?: React.ReactNode;
 }
 
 export default function AuthDialog({
@@ -45,6 +46,7 @@ export default function AuthDialog({
   userInfo,
   onLogin,
   onLogout,
+  children,
 }: AuthDialogProps) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [username, setUsername] = useState("");
@@ -160,10 +162,14 @@ export default function AuthDialog({
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="font-medium px-6 py-2">
-          <LogIn className="w-4 h-4 mr-2" />
-          Sign In
-        </Button>
+        {children ? (
+          children
+        ) : (
+          <Button variant="outline" size="sm" className="font-medium px-6 py-2">
+            <LogIn className="w-4 h-4 mr-2" />
+            Sign In
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md border-0 shadow-lg bg-white">
         <DialogHeader className="text-center pb-4">

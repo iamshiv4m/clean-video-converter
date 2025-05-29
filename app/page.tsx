@@ -227,22 +227,35 @@ export default function HomePage() {
                 </Suspense>
               </div>
 
-              {/* Video Notes Section */}
+              {/* Video Transcript Section */}
               <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Video Notes
+                  Video Transcript
                 </h2>
                 {!isLoggedIn ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <User className="w-8 h-8 text-blue-600" />
                     </div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                      Sign in to download video notes
+                    {/* Updated heading and subtext */}
+                    <h4 className="text-xl font-semibold text-gray-800 mb-2">
+                      Unlock Video Transcript
                     </h4>
-                    <p className="text-gray-600">
-                      Please sign in to access the video notes
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Sign in to access the complete video transcript and
+                      enhance your learning experience
                     </p>
+                    {/* Add AuthDialog with a button here */}
+                    <AuthDialog
+                      isLoggedIn={isLoggedIn}
+                      userInfo={userInfo}
+                      onLogin={handleLogin}
+                      onLogout={handleLogout}
+                    >
+                      <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-200">
+                        Sign in to Continue
+                      </Button>
+                    </AuthDialog>
                   </div>
                 ) : isGenerateTranscriptPending ? (
                   <div className="animate-pulse space-y-3">
