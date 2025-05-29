@@ -11,6 +11,7 @@ import { TranscriptProvider } from "@/contexts/TranscriptContext";
 import AuthDialog from "@/components/auth-dialog";
 import QuizTab from "@/components/quiz-tab";
 import LockComponent from "@/components/lock-component";
+import logo from "@/assets/YoutubPlus.jpg"; // Adjust the path as necessary
 
 interface Timestamp {
   title: string;
@@ -70,8 +71,14 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
-    const url = searchParams.get("video");
+    // Check for token in localStorage on initial load
     const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+      // Optionally fetch user info here if needed based on token
+    }
+
+    const url = searchParams.get("video") ?? searchParams.get("v");
 
     if (url && token) {
       generateTranscript(
@@ -86,15 +93,16 @@ export default function HomePage() {
         }
       );
     }
-  }, [searchParams, generateTranscript, isLoggedIn]);
+  }, [searchParams, generateTranscript]); // Removed isLoggedIn from dependencies to avoid infinite loop
 
   const handleLogin = (userInfo: { username: string; countryCode: string }) => {
     setIsLoggedIn(true);
     setUserInfo(userInfo);
 
     // Generate transcript after successful login if video URL exists
-    const url = searchParams.get("video");
-    if (url) {
+    const url = searchParams.get("video") ?? searchParams.get("v");
+    const token = localStorage.getItem("token"); // Check for token again after login
+    if (url && token) {
       generateTranscript(
         { videoUrl: url },
         {
@@ -156,6 +164,8 @@ export default function HomePage() {
     }
   };
 
+  console.log("Transcript data:", data);
+
   const transcript = data?.data?.transcript || "";
   const videoId = data?.data?.videoId || null;
 
@@ -176,6 +186,11 @@ export default function HomePage() {
               <h1 className="text-2xl font-semibold text-gray-900">
                 PW Youtube+
               </h1>
+              <img
+                src={logo?.src}
+                alt="PW Logo"
+                className="h-10 w-10 rounded-full"
+              />
               <div className="flex items-center space-x-4">
                 <Button variant="outline" size="sm" onClick={handleShare}>
                   <Share2 className="w-4 h-4 mr-2" />
