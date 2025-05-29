@@ -7,11 +7,7 @@ interface GenerateTranscriptVariables {
 
 interface GenerateTranscriptResponse {
   success: boolean;
-  data: {
-    transcript: string;
-    videoId: string;
-    [key: string]: any;
-  };
+  data: any;
   message?: string;
 }
 

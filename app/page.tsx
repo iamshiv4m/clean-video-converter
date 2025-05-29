@@ -7,6 +7,7 @@ import { Download, Share2, User } from "lucide-react";
 import VideoPlayer from "@/components/video-player";
 import ChatInterface from "@/components/chat-interface";
 import { useGenerateTranscript } from "@/hooks/useGenerateTranscript";
+import { useGetVideoDetails } from "@/hooks/useGetVideoDetails";
 import { TranscriptProvider } from "@/contexts/TranscriptContext";
 import AuthDialog from "@/components/auth-dialog";
 import QuizTab from "@/components/quiz-tab";
@@ -35,6 +36,18 @@ export default function HomePage() {
     error: generateTranscriptError,
     data,
   } = useGenerateTranscript();
+
+  const {
+    videoDetails,
+    isLoading: isVideoDetailsLoading,
+    error: videoDetailsError,
+  } = useGetVideoDetails({
+    videoId: "qsqiYM8o7uU",
+    enabled: isLoggedIn,
+  });
+  console.log(data, "data from generateTranscript");
+
+  console.log(videoDetails.description, "videoDetails");
 
   // Sample timestamps
   const timestamps: Timestamp[] = [
@@ -272,6 +285,21 @@ export default function HomePage() {
                       </Button>
                     </AuthDialog>
                   </div>
+                ) : isVideoDetailsLoading ? (
+                  <div className="animate-pulse space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                ) : videoDetailsError ? (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    An error occurred while fetching video details.
+                  </div>
+                ) : videoDetails?.description ? (
+                  <div className="prose max-w-none">
+                    <p className="text-gray-700">{videoDetails.description}</p>
+                  </div>
                 ) : isGenerateTranscriptPending ? (
                   <div className="animate-pulse space-y-3">
                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -289,7 +317,8 @@ export default function HomePage() {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500">
-                    No transcript available. Please provide a video URL.
+                    No transcript or description available. Please provide a
+                    video URL.
                   </div>
                 )}
               </div>
