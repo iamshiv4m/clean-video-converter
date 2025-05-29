@@ -194,7 +194,7 @@ export default function Component() {
                 {/* Transcript Section */}
                 <div className="mt-8">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Video Transcript
+                    Video Notes
                   </h3>
                   {isGenerateTranscriptPending ? (
                     <LoadingSkeleton />

@@ -10,6 +10,7 @@ import { useGenerateTranscript } from "@/hooks/useGenerateTranscript";
 import { TranscriptProvider } from "@/contexts/TranscriptContext";
 import AuthDialog from "@/components/auth-dialog";
 import QuizTab from "@/components/quiz-tab";
+import LockComponent from "@/components/lock-component";
 
 interface Timestamp {
   title: string;
@@ -129,7 +130,7 @@ export default function HomePage() {
   const handleDownload = () => {
     // Navigate to PW app
     window.open(
-      "https://play.google.com/store/apps/details?id=com.pw.app",
+      "https://play.google.com/store/search?q=physics+wallah&c=apps",
       "_blank"
     );
   };
@@ -226,10 +227,10 @@ export default function HomePage() {
                 </Suspense>
               </div>
 
-              {/* Video Transcript Section */}
+              {/* Video Notes Section */}
               <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Video Transcript
+                  Video Notes
                 </h2>
                 {!isLoggedIn ? (
                   <div className="text-center py-8">
@@ -237,10 +238,10 @@ export default function HomePage() {
                       <User className="w-8 h-8 text-blue-600" />
                     </div>
                     <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                      Sign in to view transcript
+                      Sign in to download video notes
                     </h4>
                     <p className="text-gray-600">
-                      Please sign in to access the video transcript
+                      Please sign in to access the video notes
                     </p>
                   </div>
                 ) : isGenerateTranscriptPending ? (
@@ -277,7 +278,8 @@ export default function HomePage() {
               </div>
 
               {/* Video Timestamps */}
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <LockComponent />
+              {/*  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
                   Video Timestamps
                 </h2>
@@ -302,7 +304,7 @@ export default function HomePage() {
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

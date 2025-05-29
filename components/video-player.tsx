@@ -20,7 +20,7 @@ export default function VideoPlayer({
   const timeUpdateInterval = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    const url = searchParams.get("video");
+    const url = searchParams.get("video") ?? searchParams.get("v");
     if (url) {
       // Convert YouTube URL to embed format if needed
       const embedUrl = convertToEmbedUrl(url);
@@ -106,6 +106,11 @@ export default function VideoPlayer({
   };
 
   const convertToEmbedUrl = (url: string): string => {
+    // Check if the URL is already a video ID (no slashes or dots)
+    if (!url.includes("/") && !url.includes(".")) {
+      return `https://www.youtube.com/embed/${url}`;
+    }
+
     // Handle different YouTube URL formats
     if (url.includes("youtube.com/watch?v=")) {
       const videoId = url.split("v=")[1]?.split("&")[0];
@@ -129,14 +134,14 @@ export default function VideoPlayer({
     // Handle t parameter in seconds (e.g., t=123s)
     const tParam = url.match(/[?&]t=(\d+)s/);
     if (tParam) {
-      return parseInt(tParam[1]);
+      return Number.parseInt(tParam[1]);
     }
 
     // Handle t parameter in minutes and seconds (e.g., t=2m3s)
     const timeParam = url.match(/[?&]t=(\d+)m(\d+)s/);
     if (timeParam) {
-      const minutes = parseInt(timeParam[1]);
-      const seconds = parseInt(timeParam[2]);
+      const minutes = Number.parseInt(timeParam[1]);
+      const seconds = Number.parseInt(timeParam[2]);
       return minutes * 60 + seconds;
     }
 
@@ -158,7 +163,7 @@ export default function VideoPlayer({
             No video URL provided
           </div>
           <div className="text-gray-400 text-sm">
-            Add ?video=YOUR_YOUTUBE_URL to the page URL
+            Add ?video=YOUR_YOUTUBE_URL or ?v=VIDEO_ID to the page URL
           </div>
         </div>
       </div>

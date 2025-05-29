@@ -92,7 +92,7 @@ export default function ChatInterface() {
       <CardHeader className="bg-blue-50">
         <CardTitle className="flex items-center gap-2 text-blue-700">
           <MessageCircle className="h-5 w-5" />
-          Solve Doubt
+          Solve Your Doubt
         </CardTitle>
       </CardHeader>
 
@@ -165,10 +165,10 @@ export default function ChatInterface() {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
+          {/*  <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
             <span>Online • Usually replies instantly</span>
             <span>✓ Secure chat</span>
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>
