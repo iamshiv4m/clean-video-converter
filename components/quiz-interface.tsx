@@ -18,6 +18,7 @@ import {
   Navigation,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { useGetQuizQuestions } from "@/hooks/useGetQuizQuestions";
 
 interface QuizOption {
   name: number;
@@ -28,6 +29,11 @@ interface QuizQuestion {
   question: string;
   options: QuizOption[];
   correctAnswer: number;
+}
+
+interface QuizInterfaceProps {
+  videoId: string | null;
+  isLoggedIn: boolean;
 }
 
 const quizData: QuizQuestion[] = [
@@ -131,7 +137,10 @@ const getDiscountInfo = (score: number, total: number) => {
   }
 };
 
-export default function QuizInterface() {
+export default function QuizInterface({
+  videoId,
+  isLoggedIn,
+}: QuizInterfaceProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: number]: number;
@@ -142,6 +151,19 @@ export default function QuizInterface() {
   const [showDiscount, setShowDiscount] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
+  const {
+    quizQuestions, // This will hold the fetched data
+    isLoading,
+    error: fetchError, // Rename error to avoid conflict
+  } = useGetQuizQuestions({
+    videoId: localStorage.getItem("videoId"),
+    enabled: !!videoId && isLoggedIn, // Fetch only when videoId exists and user is logged in
+  });
+
+  console.log("Video ID:", videoId);
+
+  console.log("Quiz Questions:", quizQuestions);
+
   const handleAnswerSelect = (questionIndex: number, answerIndex: number) => {
     setSelectedAnswers((prev) => ({
       ...prev,
@@ -150,7 +172,7 @@ export default function QuizInterface() {
   };
 
   const handleNext = () => {
-    if (currentQuestion < quizData.length - 1) {
+    if (currentQuestion < quizQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       calculateScore();
@@ -167,7 +189,7 @@ export default function QuizInterface() {
 
   const calculateScore = () => {
     let correctCount = 0;
-    quizData.forEach((question, index) => {
+    quizQuestions.forEach((question, index) => {
       if (selectedAnswers[index] === question.correctAnswer) {
         correctCount++;
       }
@@ -229,7 +251,7 @@ export default function QuizInterface() {
   };
 
   useEffect(() => {
-    if (showResults && score === quizData.length) {
+    if (showResults && score === quizQuestions.length) {
       triggerConfetti();
     }
   }, [showResults, score]);
@@ -244,11 +266,27 @@ export default function QuizInterface() {
     setCopiedCode(false);
   };
 
-  const progress = ((currentQuestion + 1) / quizData.length) * 100;
+  const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+
+  if (isLoading) {
+    return <div>Loading Quiz...</div>;
+  }
+
+  if (fetchError) {
+    const errorMessage =
+      typeof fetchError === "object" && fetchError !== null
+        ? JSON.stringify(fetchError)
+        : String(fetchError);
+    return <div>Error loading quiz: {errorMessage}</div>;
+  }
+
+  if (!quizQuestions || quizQuestions.length === 0) {
+    return <div>No quiz available for this video.</div>;
+  }
 
   if (showResults) {
-    const discountInfo = getDiscountInfo(score, quizData.length);
-    const isPerfectScore = score === quizData.length;
+    const discountInfo = getDiscountInfo(score, quizQuestions.length);
+    const isPerfectScore = score === quizQuestions.length;
 
     return (
       <Card className="border-0 shadow-lg bg-white overflow-hidden">
@@ -283,10 +321,10 @@ export default function QuizInterface() {
                 isPerfectScore ? "text-green-600" : "text-blue-600"
               }`}
             >
-              {score}/{quizData.length}
+              {score}/{quizQuestions.length}
             </div>
             <div className="text-xl text-gray-600 mb-6">
-              You scored {Math.round((score / quizData.length) * 100)}%
+              You scored {Math.round((score / quizQuestions.length) * 100)}%
             </div>
 
             {/* Discount Reveal Section */}
@@ -370,7 +408,7 @@ export default function QuizInterface() {
           </div>
 
           <div className="space-y-4 mb-8">
-            {quizData.map((question, index) => {
+            {quizQuestions.map((question, index) => {
               const userAnswer = selectedAnswers[index];
               const isCorrect = userAnswer === question.correctAnswer;
 
@@ -412,7 +450,7 @@ export default function QuizInterface() {
     );
   }
 
-  const question = quizData[currentQuestion];
+  const question = quizQuestions[currentQuestion];
   const selectedAnswer = selectedAnswers[currentQuestion];
 
   return (
@@ -423,7 +461,7 @@ export default function QuizInterface() {
             Garud Platform Quiz
           </CardTitle>
           <Badge className="bg-white/20 text-white border-white/30">
-            {currentQuestion + 1} of {quizData.length}
+            {currentQuestion + 1} of {quizQuestions.length}
           </Badge>
         </div>
 
@@ -441,11 +479,11 @@ export default function QuizInterface() {
       <CardContent className="p-8">
         <div className="mb-8">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 leading-relaxed">
-            {question.question}
+            {question?.question}
           </h3>
 
           <div className="space-y-3">
-            {question.options.map((option) => (
+            {question?.options?.map((option) => (
               <button
                 key={option.name}
                 onClick={() => handleAnswerSelect(currentQuestion, option.name)}
@@ -489,7 +527,7 @@ export default function QuizInterface() {
             disabled={selectedAnswer === undefined}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6"
           >
-            {currentQuestion === quizData.length - 1
+            {currentQuestion === quizQuestions.length - 1
               ? "Finish Quiz"
               : "Next Question"}
           </Button>

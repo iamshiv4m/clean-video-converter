@@ -17,14 +17,14 @@ type ApiConfig = {
 };
 
 const defaultConfig: ApiConfig = {
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "https://stage-api.penpencil.co/",
   headers: {
     "Content-Type": "application/json",
   },
 };
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "https://stage-api.penpencil.co/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -50,14 +50,21 @@ export const useApi = () => {
 
       const response = await fetch(
         `${config.baseURL}${url}`,
-        interceptedConfig
+        interceptedConfig as RequestInit
       );
 
       // Apply response interceptor
       const interceptedResponse = await responseInterceptor(response);
 
       if (!interceptedResponse.ok) {
-        throw interceptedResponse;
+        // Attempt to read response body for more detailed error
+        const errorBody = await interceptedResponse.json().catch(() => null);
+        const error = new Error(
+          `HTTP error! status: ${interceptedResponse.status}`
+        );
+        // Attach the error body if available
+        (error as any).body = errorBody;
+        throw error;
       }
 
       return interceptedResponse.json();
@@ -85,15 +92,21 @@ export const useApi = () => {
     TError = unknown
   >(
     url: string,
-    options?: Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">
+    options?: Omit<
+      UseMutationOptions<TData, TError, TVariables>,
+      "mutationFn"
+    > & { fetchOptions?: RequestInit }
   ) => {
+    const { fetchOptions, ...mutationOptions } = options || {};
+
     return useMutation<TData, TError, TVariables>({
       mutationFn: (variables) =>
         fetchWithInterceptors(url, {
           method: "POST",
           body: JSON.stringify(variables),
-        }),
-      ...options,
+          ...fetchOptions,
+        } as RequestInit),
+      ...mutationOptions,
     });
   };
 

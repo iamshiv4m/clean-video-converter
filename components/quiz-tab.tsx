@@ -11,7 +11,12 @@ export default function QuizTab() {
   const [isHovered, setIsHovered] = useState(false);
 
   if (showQuiz) {
-    return <QuizInterface />;
+    return (
+      <QuizInterface
+        videoId={localStorage.getItem("videoId") as string}
+        isLoggedIn
+      />
+    );
   }
 
   return (
