@@ -30,7 +30,7 @@ export default function Component() {
   } = useGenerateTranscript();
 
   useEffect(() => {
-    const url = searchParams.get("video");
+    const url = searchParams.get("video") ?? searchParams.get("v");
     if (url) {
       generateTranscript(
         { videoUrl: url },

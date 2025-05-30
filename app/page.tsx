@@ -12,7 +12,6 @@ import { TranscriptProvider } from "@/contexts/TranscriptContext";
 import AuthDialog from "@/components/auth-dialog";
 import QuizTab from "@/components/quiz-tab";
 import LockComponent from "@/components/lock-component";
-import logo from "@/assets/YoutubPlus.jpg"; // Adjust the path as necessary
 
 interface Timestamp {
   title: string;
@@ -90,9 +89,19 @@ export default function HomePage() {
 
     const url = searchParams.get("video") ?? searchParams.get("v");
 
-    if (url && token) {
+    let videoUrlToGenerateTranscript = null;
+    if (url) {
+      if (url.startsWith("http")) {
+        videoUrlToGenerateTranscript = url;
+      } else {
+        // Assume it's a video ID and construct the full YouTube URL
+        videoUrlToGenerateTranscript = `https://www.youtube.com/watch?v=${url}`;
+      }
+    }
+
+    if (videoUrlToGenerateTranscript && token) {
       generateTranscript(
-        { videoUrl: url },
+        { videoUrl: videoUrlToGenerateTranscript },
         {
           onSuccess: (data: any) => {
             localStorage.setItem("videoId", data?.videoId);
@@ -112,9 +121,20 @@ export default function HomePage() {
     // Generate transcript after successful login if video URL exists
     const url = searchParams.get("video") ?? searchParams.get("v");
     const token = localStorage.getItem("token"); // Check for token again after login
-    if (url && token) {
+
+    let videoUrlToGenerateTranscript = null;
+    if (url) {
+      if (url.startsWith("http")) {
+        videoUrlToGenerateTranscript = url;
+      } else {
+        // Assume it's a video ID and construct the full YouTube URL
+        videoUrlToGenerateTranscript = `https://www.youtube.com/watch?v=${url}`;
+      }
+    }
+
+    if (videoUrlToGenerateTranscript && token) {
       generateTranscript(
-        { videoUrl: url },
+        { videoUrl: videoUrlToGenerateTranscript },
         {
           onSuccess: (data: any) => {
             localStorage.setItem("videoId", data?.videoId);
@@ -196,11 +216,6 @@ export default function HomePage() {
               <h1 className="text-2xl font-semibold text-gray-900">
                 PW Youtube+
               </h1>
-              <img
-                src={logo?.src}
-                alt="PW Logo"
-                className="h-10 w-10 rounded-full"
-              />
               <div className="flex items-center space-x-4">
                 <Button variant="outline" size="sm" onClick={handleShare}>
                   <Share2 className="w-4 h-4 mr-2" />

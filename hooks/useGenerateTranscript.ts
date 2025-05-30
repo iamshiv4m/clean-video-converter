@@ -14,7 +14,7 @@ interface GenerateTranscriptResponse {
 const generateTranscript = async (
   variables: GenerateTranscriptVariables
 ): Promise<GenerateTranscriptResponse> => {
-  const NG_ROCK_API_BASE_URL = "https://f35c-103-222-252-210.ngrok-free.app";
+  const NG_ROCK_API_BASE_URL = "https://8842-103-124-13-33.ngrok-free.app";
   const response = await fetch(
     `${NG_ROCK_API_BASE_URL}${API_ENDPOINTS.GENERATE_TRANSCRIPT}`,
     {
